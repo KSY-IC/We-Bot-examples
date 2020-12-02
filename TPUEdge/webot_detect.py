@@ -16,9 +16,18 @@
 # Modified by 2020 KSY
 #   Add WeBot control
 #
+# Changes
+#  L27 - L29 : Add library
+#  L81 - L85 : Add Initialization process
+#  L137 - L149 : Add control process
+
 
 import time
+
+# ---- Change for We-Bot
 from webot import WeBot
+# ----
+
 
 import argparse
 import collections
@@ -32,8 +41,9 @@ import tflite_runtime.interpreter as tflite
 
 Object = collections.namedtuple('Object', ['id', 'score', 'bbox'])
 
+# ---- Change for We-Bot
 webot_pi = WeBot()
-
+# ----
 
 def load_labels(path):
     p = re.compile(r'\s*(\d+)(.+)')
@@ -68,10 +78,12 @@ def get_output(interpreter, score_threshold, top_k, image_scale=1.0):
     return [make(i) for i in range(top_k) if scores[i] >= score_threshold]
 
 def main():
+# ----- Change for We-Bot
     webot_pi.enableMotor()
     webot_pi.setSpeedOffset(1.0,1.0)
     webot_pi.stop()
-    
+# -----
+
     default_model_dir = '../all_models'
     default_model = 'mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite'
     default_labels = 'coco_labels.txt'
@@ -117,15 +129,13 @@ def main():
     cv2.destroyAllWindows()
 
 def get_objs_position( objs, labels):
-#    print('-----------------')
     for obj in objs:
         x0, y0, x1, y1 = list(obj.bbox)
         percent = int(100 * obj.score)
         label = '{}'.format(labels.get(obj.id, obj.id))
+
+# ---- Change for We-Bot
         if label == 'person':
-            print('------')
-#            print(f'{x0},{y0} - {x1},{y1} {label}')
-#
             center = (x1 + x0) / 2
             if center > 0.6:
                 webot_pi.left(480)
@@ -136,6 +146,7 @@ def get_objs_position( objs, labels):
     
         else:
             webot_pi.stop()
+# ----
 
 
 
